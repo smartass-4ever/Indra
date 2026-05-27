@@ -17,7 +17,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/smartass-4ever/Indra",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests", "tests.*"]),
     classifiers=[
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
@@ -33,35 +33,15 @@ setup(
     ],
     python_requires=">=3.10",
     install_requires=[
-        "numpy>=1.24.0",
-        "cryptography>=41.0.0",
         "requests>=2.31.0",
+        "numpy>=1.24.0",
     ],
     extras_require={
-        "embeddings": ["sentence-transformers>=2.2.0"],
         "anthropic": ["anthropic>=0.20.0"],
         "openai":    ["openai>=1.0.0"],
-        "google":    ["google-generativeai>=0.7.0"],
-        "groq":      ["groq>=0.9.0"],
-        "all-llm": [
-            "anthropic>=0.20.0",
-            "openai>=1.0.0",
-            "google-generativeai>=0.7.0",
-            "groq>=0.9.0",
-        ],
-        "full": [
-            "sentence-transformers>=2.2.0",
-            "anthropic>=0.20.0",
-            "openai>=1.0.0",
-            "google-generativeai>=0.7.0",
-            "groq>=0.9.0",
-        ],
-        "redis": ["redis>=5.0.0"],
         "dev": [
             "pytest>=7.0.0",
             "pytest-asyncio>=0.21.0",
-            "black>=23.0.0",
-            "mypy>=1.0.0",
         ],
     },
     entry_points={

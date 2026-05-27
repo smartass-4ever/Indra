@@ -4,24 +4,19 @@ with open("README.md", "r", encoding="utf-8") as f:
     long_description = f.read()
 
 setup(
-    name="mnemon-ai",
-    version="1.1.3",
+    name="indra-ai",
+    version="1.0.0",
     author="Mahika Jadhav",
     author_email="mahikajadhav22@gmail.com",
-    description="Cut LLM agent token costs by 93%. Execution cache for LangChain, CrewAI, AutoGen, LangGraph — zero tokens on repeat runs, 2.66ms latency vs 20s.",
+    description="Web intelligence that only thinks when the web changes. Bright Data + LLM agent cache — zero tokens on unchanged pages.",
     keywords=[
-        "llm cost reduction", "token savings", "reduce openai costs", "reduce anthropic costs",
-        "langchain cache", "crewai cache", "autogen cache", "langgraph cache",
-        "llm agent optimization", "ai agent token cost", "llm execution cache",
-        "reduce llm latency", "agent workflow optimization", "llm cost optimization",
-        "openai cost reduction", "anthropic cost reduction", "llm token optimization",
-        "ai agent caching", "llm response cache", "recurring agent workflow",
-        "llm agent memory", "stateless agent", "agent execution memory",
-        "reduce ai costs", "llm inference cost", "agent latency reduction",
+        "web scraping", "bright data", "web monitoring", "change detection",
+        "llm cost reduction", "ai agent", "web intelligence", "competitor monitoring",
+        "price monitoring", "token savings", "agent cache", "web data",
     ],
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/smartass-4ever/Mnemon",
+    url="https://github.com/smartass-4ever/Indra",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
@@ -40,6 +35,7 @@ setup(
     install_requires=[
         "numpy>=1.24.0",
         "cryptography>=41.0.0",
+        "requests>=2.31.0",
     ],
     extras_require={
         "embeddings": ["sentence-transformers>=2.2.0"],
@@ -71,6 +67,7 @@ setup(
     entry_points={
         "console_scripts": [
             "mnemon=mnemon.cli.main:main",
+            "indra=indra.cli:main",
         ],
     },
 )

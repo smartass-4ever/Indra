@@ -1,10 +1,11 @@
-# Mnemon — requirements
+# Indra — requirements
 
-# Core (always installed with pip install mnemon-ai)
+# Core
 numpy>=1.24.0
-sentence-transformers>=2.2.0   # real semantic embeddings — 384-dim, ~85%+ retrieval precision
+requests>=2.31.0               # Bright Data API calls
 cryptography>=41.0.0           # Fernet AES-128 encryption — production-grade
-anthropic>=0.20.0              # LLM routing + drone curation — auto-activated via ANTHROPIC_API_KEY
+anthropic>=0.20.0              # LLM analysis — auto-activated via ANTHROPIC_API_KEY
+sentence-transformers>=2.2.0   # semantic embeddings for Mnemon cache layer
 
 # Optional
 # openai>=1.0.0                # alternative LLM — pip install mnemon-ai[openai]

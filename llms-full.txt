@@ -1,0 +1,188 @@
+# Indra — Full Reference
+
+> Web intelligence that only thinks when the web changes. Bright Data + LLM agent cache — zero tokens on unchanged pages.
+
+## What it does
+
+Indra monitors URLs and SERP queries for content changes. On every run it fetches live via Bright Data (bypassing bot detection and geo-blocks), fingerprints the response, and compares to the last stored hash:
+
+- **No change** → return cached LLM insight instantly. Zero tokens, sub-millisecond.
+- **Changed** → extract unified diff, send only the delta to your LLM. Tokens proportional to what changed, not page size.
+
+Over 24 hours of hourly checks across 10 pages: 240 Bright Data fetches, ~20 LLM calls instead of 240.
+
+## Install
+
+```bash
+pip install indra-ai
+
+# with Anthropic support
+pip install indra-ai[anthropic]
+
+# with OpenAI support
+pip install indra-ai[openai]
+```
+
+## Environment variables
+
+| Variable | Required | Description |
+|---|---|---|
+| `BRIGHTDATA_API_KEY` | Yes | Bright Data API key |
+| `ANTHROPIC_API_KEY` | No | For Anthropic-based generation_fn |
+
+## API
+
+### `indra.init()`
+
+```python
+agent = indra.init(
+    brightdata_api_key="...",   # or set BRIGHTDATA_API_KEY env var
+    db_path="indra.db",         # SQLite path for snapshots and insights
+    unlocker_zone=None,         # custom Bright Data zone name
+    serp_zone=None,             # custom Bright Data SERP zone name
+    silent=False,               # suppress per-URL console output
+)
+```
+
+Returns a singleton `Indra` instance. Calling `init()` again returns the same instance.
+
+### `agent.watch(url, question, generation_fn)`
+
+Watch a single URL. Returns a `WatchResult`.
+
+```python
+result = agent.watch(
+    url="https://example.com",
+    question="What changed and why does it matter?",
+    generation_fn=my_llm_fn,    # fn(prompt: str) -> str — only called on change
+    render_js=False,            # True for JS-heavy pages (Bright Data headless)
+    ttl=3600,                   # skip Bright Data fetch if snapshot < ttl seconds old
+)
+```
+
+`generation_fn` is only called when content has changed since the last run. Signature: `fn(prompt: str) -> str`. Pass any LLM wrapper — Anthropic, OpenAI, local model, etc.
+
+### `agent.watch_all(urls, question, generation_fn)`
+
+Watch multiple URLs in one call. Returns `List[WatchResult]`.
+
+```python
+results = agent.watch_all(
+    urls=["https://site1.com", "https://site2.com"],
+    question="Any significant changes?",
+    generation_fn=my_llm_fn,
+    render_js=False,
+    ttl=None,
+)
+```
+
+### `agent.search_watch(query, question, generation_fn)`
+
+Watch live SERP results for a search query. Fires LLM only when the result set changes.
+
+```python
+result = agent.search_watch(
+    query="openai new model announcement",
+    question="Is there a major new release?",
+    generation_fn=my_llm_fn,
+    num_results=10,
+)
+```
+
+### `agent.stats()` / `agent.print_stats()`
+
+```python
+s = agent.stats()
+# {
+#   "brightdata_fetches": 24,
+#   "llm_calls_fired": 3,
+#   "cache_hits": 21,
+#   "changes_detected": 3,
+#   "tokens_saved": 31500,
+#   "cost_saved_usd": 0.0945,
+#   "efficiency_pct": 87,
+# }
+
+agent.print_stats()
+# ──────────────────────────────────────────────────
+#   Indra Session Summary
+# ──────────────────────────────────────────────────
+#   Bright Data fetches : 24
+#   Changes detected    : 3
+#   LLM calls fired     : 3
+#   Cache hits          : 21
+#   Tokens saved        : 31,500
+#   Cost saved          : $0.0945
+#   Efficiency          : 87%
+# ──────────────────────────────────────────────────
+```
+
+### `WatchResult` fields
+
+| Field | Type | Description |
+|---|---|---|
+| `changed` | bool | Whether content changed since last run |
+| `insight` | str | LLM analysis, or cached answer if unchanged |
+| `diff` | str | Unified diff of what changed (empty if no change) |
+| `tokens_saved` | int | Tokens skipped this run |
+| `cost_saved_usd` | float | Dollar value of skipped tokens |
+| `latency_ms` | float | Total time for this watch call |
+| `brightdata_called` | bool | Whether Bright Data was queried |
+| `change_count` | int | Total times this URL has changed |
+| `summary` | str | Human-readable change summary |
+
+## Architecture
+
+```
+Your agent / script
+        │ agent.watch(url, question)
+        ▼
+  Indra
+  1. Fetch via Bright Data Web Unlocker
+     (bypasses bot detection, geo-blocks)
+  2. Fingerprint content (SHA-256)
+     Compare to stored hash in SQLite
+  3a. No change → return cached insight
+      0 tokens · sub-millisecond
+  3b. Changed → extract diff → LLM(diff only)
+      tokens ∝ what changed, not page size
+```
+
+Indra stores snapshots and insights in a local SQLite database. The LLM insight cache is powered by [Mnemon](https://github.com/smartass-4ever/Mnemon) — identical prompts on identical diffs never hit the LLM twice, even across restarts.
+
+## Use cases
+
+- **Competitor pricing monitor** — check 20 competitor pages every hour; LLM summarises only when a price changes
+- **News and signal tracker** — watch industry news; alert only on genuinely new stories
+- **Supply chain watcher** — monitor supplier pages for stock or lead time changes; zero noise on stable days
+- **Regulatory tracker** — watch government or compliance pages; LLM fires when policy text changes
+- **SEO and ranking monitor** — SERP watch for branded or competitive queries; analyse only when rankings shift
+
+## Dependencies
+
+| Package | Role |
+|---|---|
+| `requests` | HTTP fallback and Bright Data API calls |
+| `numpy` | Similarity scoring for change detection |
+| `mnemon` | LLM insight cache (bundled) |
+| `anthropic` *(optional)* | Anthropic SDK for generation_fn |
+| `openai` *(optional)* | OpenAI SDK for generation_fn |
+
+## Source layout
+
+```
+indra/
+  __init__.py          — Indra class, WatchResult, init(), get()
+  cli.py               — CLI entry point (indra command)
+  demo.py              — interactive demo runner
+  web/
+    brightdata.py      — BrightDataClient (fetch + search)
+    change_detector.py — fingerprint, diff, summarise_change
+    store.py           — WebSnapshotStore (SQLite)
+examples/
+  competitor_monitor_demo.py
+```
+
+## License
+
+MIT. Built for the [Web Data UNLOCKED Hackathon](https://lablab.ai/ai-hackathons/brightdata-ai-agents-web-data-hackathon) by [Mahika Jadhav](https://github.com/smartass-4ever).

@@ -1,0 +1,42 @@
+# Indra
+
+> Web intelligence that only thinks when the web changes. Bright Data + LLM agent cache — zero tokens on unchanged pages.
+
+Indra is a Python library that monitors web pages for changes using Bright Data for live fetching, and only fires an LLM when content actually changes. On unchanged pages it returns the cached insight instantly at zero token cost. When a page changes, the LLM sees only the diff — not the full page.
+
+## Install
+
+```bash
+pip install indra-ai
+```
+
+## Quick start
+
+```python
+import indra
+
+agent = indra.init(brightdata_api_key="your-key")
+
+result = agent.watch(
+    url="https://competitor.com/pricing",
+    question="Did any prices change? What are the implications?",
+    generation_fn=my_llm_call,
+)
+
+print(result.changed)       # True / False
+print(result.insight)       # LLM analysis, or cached answer if unchanged
+print(result.tokens_saved)  # tokens skipped this run
+```
+
+## Key concepts
+
+- **Change detection** — SHA-256 fingerprint comparison; LLM skipped entirely on no-change
+- **Diff-only LLM** — when a page changes, only the unified diff is sent to the LLM
+- **Bright Data** — every fetch goes through Bright Data Web Unlocker (bypasses bot detection, CAPTCHAs, geo-blocks)
+- **Mnemon cache** — identical prompts on identical diffs never hit the LLM twice, even across restarts
+
+## Links
+
+- [PyPI](https://pypi.org/project/indra-ai/)
+- [GitHub](https://github.com/smartass-4ever/Indra)
+- [Full docs](https://github.com/smartass-4ever/Indra/blob/main/llms-full.txt)

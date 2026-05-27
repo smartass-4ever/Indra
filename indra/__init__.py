@@ -98,8 +98,8 @@ class Indra:
         self,
         brightdata_api_key: Optional[str] = None,
         db_path: str = "indra.db",
-        unlocker_zone: str = "web_unlocker1",
-        serp_zone: str = "serp_api1",
+        unlocker_zone: Optional[str] = None,
+        serp_zone: Optional[str] = None,
         silent: bool = False,
     ):
         self._bd = BrightDataClient(
@@ -198,7 +198,7 @@ class Indra:
             self.session_cache_hits   += 1
             self.session_tokens_saved += _FULL_PAGE_TOKENS
             if not self._silent:
-                print(f"Indra: {url[:60]} — unchanged · {_FULL_PAGE_TOKENS} tokens saved")
+                print(f"Indra: {url[:60]} - unchanged - {_FULL_PAGE_TOKENS} tokens saved")
             return WatchResult(
                 url=url, changed=False,
                 insight=snapshot.get("last_insight", ""),
@@ -223,7 +223,7 @@ class Indra:
         self.session_tokens_saved += tokens_saved
 
         if not self._silent:
-            print(f"Indra: {url[:60]} — CHANGED ({summary}) · LLM fired · {tokens_saved} tokens saved on diff")
+            print(f"Indra: {url[:60]} - CHANGED ({summary}) - LLM fired - {tokens_saved} tokens saved on diff")
 
         return WatchResult(
             url=url, changed=True, insight=insight, diff=diff,
@@ -331,11 +331,12 @@ class Indra:
         }
 
     def print_stats(self) -> None:
-        s = self.stats()
+        s   = self.stats()
+        sep = "-" * 50
         print(
-            f"\n{'─'*50}\n"
+            f"\n{sep}\n"
             f"  Indra Session Summary\n"
-            f"{'─'*50}\n"
+            f"{sep}\n"
             f"  Bright Data fetches : {s['brightdata_fetches']}\n"
             f"  Changes detected    : {s['changes_detected']}\n"
             f"  LLM calls fired     : {s['llm_calls_fired']}\n"
@@ -343,7 +344,7 @@ class Indra:
             f"  Tokens saved        : {s['tokens_saved']:,}\n"
             f"  Cost saved          : ${s['cost_saved_usd']:.4f}\n"
             f"  Efficiency          : {s['efficiency_pct']}%\n"
-            f"{'─'*50}\n"
+            f"{sep}\n"
         )
 
     def close(self) -> None:
@@ -412,6 +413,8 @@ _instance: Optional[Indra] = None
 def init(
     brightdata_api_key: Optional[str] = None,
     db_path: str = "indra.db",
+    unlocker_zone: Optional[str] = None,
+    serp_zone: Optional[str] = None,
     silent: bool = False,
     **kwargs,
 ) -> Indra:
@@ -427,6 +430,8 @@ def init(
     _instance = Indra(
         brightdata_api_key=brightdata_api_key,
         db_path=db_path,
+        unlocker_zone=unlocker_zone,
+        serp_zone=serp_zone,
         silent=silent,
         **kwargs,
     )

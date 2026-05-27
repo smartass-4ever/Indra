@@ -81,9 +81,9 @@ def run_demo():
     llm_fn = _make_llm_fn()
 
     for round_num in range(1, ROUNDS + 1):
-        print(f"\n{'─'*60}")
+        print(f"\n{'-'*60}")
         print(f"  Round {round_num} — {'Baseline (first run)' if round_num == 1 else 'Incremental check'}")
-        print(f"{'─'*60}")
+        print(f"{'-'*60}")
 
         for page in MONITORED_PAGES:
             result = agent.watch(

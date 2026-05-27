@@ -66,7 +66,6 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "mnemon=mnemon.cli.main:main",
             "indra=indra.cli:main",
         ],
     },

@@ -1,5 +1,0 @@
-title: Mnemon — LLM Agent Execution Cache
-description: Cut LLM agent token costs by 93%. Execution cache for LangChain, CrewAI, AutoGen, LangGraph — zero tokens on repeat runs, 2.66ms latency vs 20s.
-url: "https://smartass-4ever.github.io"
-baseurl: "/Mnemon"
-author: Mahika Jadhav

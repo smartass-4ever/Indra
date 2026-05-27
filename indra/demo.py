@@ -36,7 +36,7 @@ MONITORED_PAGES = [
 ]
 
 ROUNDS    = 3
-ROUND_GAP = 2  # seconds (would be 3600 in production)
+ROUND_GAP = int(os.environ.get("INDRA_DEMO_GAP", "30"))  # seconds between rounds (30 = HN will change)
 
 
 def _make_llm_fn():
@@ -62,6 +62,14 @@ def _make_llm_fn():
         return None
 
 
+def _countdown(seconds: int) -> None:
+    """Print a live countdown so the terminal isn't silent during waits."""
+    for remaining in range(seconds, 0, -1):
+        print(f"\r  Next check in {remaining:3d}s ... ", end="", flush=True)
+        time.sleep(1)
+    print("\r" + " " * 30 + "\r", end="", flush=True)
+
+
 def run_demo():
     import indra
 
@@ -72,51 +80,75 @@ def run_demo():
         return
 
     print("\n" + "=" * 60)
-    print("  Indra — Web Intelligence That Only Thinks When")
-    print("  the Web Changes")
+    print("  Indra  -  Web Intelligence That Only Thinks When")
+    print("            the Web Changes")
     print("  Powered by Bright Data + Mnemon")
     print("=" * 60)
 
     agent  = indra.init(brightdata_api_key=api_key, db_path="indra_demo.db")
     llm_fn = _make_llm_fn()
 
-    for round_num in range(1, ROUNDS + 1):
-        print(f"\n{'-'*60}")
-        print(f"  Round {round_num} — {'Baseline (first run)' if round_num == 1 else 'Incremental check'}")
-        print(f"{'-'*60}")
+    bd_mode = "Bright Data Web Unlocker" if agent._bd.using_brightdata else "direct requests (no zone configured)"
+    print(f"\n  Fetch mode : {bd_mode}")
+    print(f"  LLM        : {'Anthropic claude-haiku-4-5-20251001' if llm_fn else 'disabled (set ANTHROPIC_API_KEY)'}")
+    print(f"  Pages      : {len(MONITORED_PAGES)}")
+    print(f"  Rounds     : {ROUNDS}  (gap: {ROUND_GAP}s)")
 
+    for round_num in range(1, ROUNDS + 1):
+        print(f"\n{'=' * 60}")
+        print(f"  Round {round_num} / {ROUNDS}  -  {'Baseline (first observation)' if round_num == 1 else 'Incremental check'}")
+        print(f"{'=' * 60}")
+
+        changed_this_round = 0
         for page in MONITORED_PAGES:
             result = agent.watch(
                 url=page["url"],
                 question=page["question"],
                 generation_fn=llm_fn,
             )
-            status = "CHANGED ↑ " if result.changed else "unchanged ·"
-            saved  = f"saved {result.tokens_saved} tokens" if result.tokens_saved else "first run"
-            print(f"  {status} {result.url[:55]:<55} {saved}")
-
-            if result.changed and result.insight:
-                print(f"           → {result.insight[:120]}...")
+            if result.changed:
+                changed_this_round += 1
+                saved = f"saved {result.tokens_saved} tokens on diff"
+                print(f"\n  *** CHANGED *** {result.url[:50]}")
+                print(f"  Summary  : {result.summary}")
+                if result.insight:
+                    # wrap at 70 chars
+                    words  = result.insight.split()
+                    line   = "  Insight  : "
+                    lines  = []
+                    for w in words:
+                        if len(line) + len(w) + 1 > 72:
+                            lines.append(line)
+                            line = "             " + w + " "
+                        else:
+                            line += w + " "
+                    if line.strip():
+                        lines.append(line)
+                    print("\n".join(lines))
+                print(f"  Tokens   : {saved}\n")
+            else:
+                saved = f"saved {result.tokens_saved} tokens" if result.tokens_saved else "first observation"
+                label = result.url.replace("https://", "").replace("http://", "")
+                print(f"  unchanged   {label[:52]:<52}  {saved}")
 
         s = agent.stats()
         print(
-            f"\n  Running total: "
-            f"{s['brightdata_fetches']} BD fetches | "
-            f"{s['llm_calls_fired']} LLM calls | "
-            f"{s['tokens_saved']:,} tokens saved | "
+            f"\n  Running total:  "
+            f"{s['brightdata_fetches']} fetches  |  "
+            f"{s['llm_calls_fired']} LLM calls  |  "
+            f"{s['tokens_saved']:,} tokens saved  |  "
             f"${s['cost_saved_usd']:.4f} saved"
         )
 
         if round_num < ROUNDS:
-            print(f"\n  (waiting {ROUND_GAP}s...)")
-            time.sleep(ROUND_GAP)
+            _countdown(ROUND_GAP)
 
     agent.print_stats()
 
     s = agent.stats()
     if s["brightdata_fetches"] > 0 and s["llm_calls_fired"] < s["brightdata_fetches"]:
         reduction = round(100 * (1 - s["llm_calls_fired"] / s["brightdata_fetches"]))
-        print(f"  Naive: {s['brightdata_fetches']} LLM calls.")
-        print(f"  Indra: {s['llm_calls_fired']} — {reduction}% reduction.\n")
+        print(f"  Naive approach : {s['brightdata_fetches']} LLM calls for {s['brightdata_fetches']} pages.")
+        print(f"  Indra          : {s['llm_calls_fired']} LLM calls — {reduction}% reduction.\n")
 
     agent.close()

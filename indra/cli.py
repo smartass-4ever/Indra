@@ -11,6 +11,7 @@ def main():
             "Usage:\n"
             "  indra demo           Run the competitor monitor demo\n"
             "  indra watch <url>    Watch a single URL\n"
+            "  indra reset          Clear the demo snapshot DB (fresh start)\n"
         )
         return
 
@@ -19,6 +20,20 @@ def main():
     if cmd == "demo":
         from indra.demo import run_demo
         run_demo()
+
+    elif cmd == "reset":
+        import glob as _glob
+        removed = []
+        for f in _glob.glob("indra*.db") + _glob.glob("indra*.db-wal") + _glob.glob("indra*.db-shm"):
+            try:
+                os.remove(f)
+                removed.append(f)
+            except OSError as e:
+                print(f"Could not remove {f}: {e}")
+        if removed:
+            print(f"Cleared: {', '.join(removed)}")
+        else:
+            print("Nothing to clear (no indra*.db files found).")
 
     elif cmd == "watch" and len(sys.argv) >= 3:
         url = sys.argv[2]

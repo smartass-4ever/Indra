@@ -65,6 +65,7 @@ class WatchResult:
         self.insight           = insight
         self.diff              = diff
         self.tokens_saved      = tokens_saved
+        self.cost_saved_usd    = round(tokens_saved * _COST_PER_TOKEN, 4)
         self.latency_ms        = latency_ms
         self.brightdata_called = brightdata_called
         self.change_count      = change_count
@@ -348,8 +349,11 @@ class Indra:
         )
 
     def close(self) -> None:
+        global _instance
         self._mnemon.__exit__(None, None, None)
         self._store.close()
+        if _instance is self:
+            _instance = None
 
     # ── internal ───────────────────────────────────────────────────────────
 

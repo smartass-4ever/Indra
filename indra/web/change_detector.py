@@ -53,8 +53,12 @@ def summarise_change(old_content: str, new_content: str) -> str:
     old_text = _strip_html(old_content)
     new_text = _strip_html(new_content)
 
-    added   = sum(1 for line in difflib.ndiff(old_text.splitlines(), new_text.splitlines()) if line.startswith("+ "))
-    removed = sum(1 for line in difflib.ndiff(old_text.splitlines(), new_text.splitlines()) if line.startswith("- "))
+    added, removed = 0, 0
+    for line in difflib.ndiff(old_text.splitlines(), new_text.splitlines()):
+        if line.startswith("+ "):
+            added += 1
+        elif line.startswith("- "):
+            removed += 1
 
     if added == 0 and removed == 0:
         return "whitespace/markup change only"
@@ -68,8 +72,9 @@ def summarise_change(old_content: str, new_content: str) -> str:
 
 def _strip_html(html: str) -> str:
     """Remove HTML tags and collapse whitespace for cleaner diffs."""
-    text = re.sub(r"<[^>]+>", " ", html)
-    text = re.sub(r"&[a-zA-Z]+;", " ", text)   # HTML entities
+    text = re.sub(r"<(script|style)[^>]*>.*?</(script|style)>", " ", html, flags=re.IGNORECASE | re.DOTALL)
+    text = re.sub(r"<[^>]+>", " ", text)
+    text = re.sub(r"&[a-zA-Z]+;", " ", text)
     text = re.sub(r"\s+", " ", text).strip()
     return text
 

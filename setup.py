@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as f:
 
 setup(
     name="indra-ai",
-    version="1.0.0",
+    version="1.0.3",
     author="Mahika Jadhav",
     author_email="mahikajadhav22@gmail.com",
     description="Web intelligence that only thinks when the web changes. Bright Data + LLM agent cache — zero tokens on unchanged pages.",
@@ -13,6 +13,8 @@ setup(
         "web scraping", "bright data", "web monitoring", "change detection",
         "llm cost reduction", "ai agent", "web intelligence", "competitor monitoring",
         "price monitoring", "token savings", "agent cache", "web data",
+        "llm", "web crawler", "scraping", "agentic", "serp",
+        "cost optimization", "web unlocker",
     ],
     long_description=long_description,
     long_description_content_type="text/markdown",

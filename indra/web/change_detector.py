@@ -85,10 +85,9 @@ def build_change_prompt(url: str, diff: str, question: str) -> str:
     The LLM never sees the full page — only the delta.
     """
     return (
-        f"A monitored webpage changed.\n"
+        f"A monitored webpage changed. Answer the question in 1-2 plain sentences. "
+        f"No JSON, no bullet points, no preamble — just the answer.\n\n"
         f"URL: {url}\n\n"
-        f"What changed (unified diff):\n"
-        f"```\n{diff}\n```\n\n"
-        f"Question: {question}\n\n"
-        f"Answer based only on what changed above. Be concise."
+        f"Diff:\n```\n{diff}\n```\n\n"
+        f"Question: {question}"
     )

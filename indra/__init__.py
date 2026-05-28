@@ -375,8 +375,8 @@ class Indra:
         if generation_fn is None:
             return ""
         prompt = (
-            f"Analyse this web content and answer: {question}\n\n"
-            f"URL: {url}\n\nContent:\n{content[:3000]}"
+            f"Answer in 1-2 plain sentences. No JSON, no bullet points, no preamble.\n\n"
+            f"URL: {url}\n\nContent:\n{content[:3000]}\n\nQuestion: {question}"
         )
         return self._call_via_mnemon(prompt, url, generation_fn)
 

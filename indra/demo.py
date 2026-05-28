@@ -22,10 +22,6 @@ MONITORED_PAGES = [
         "question": "Did any model prices or tiers change?",
     },
     {
-        "url":      "https://news.ycombinator.com/",
-        "question": "What are the top 3 AI or infrastructure stories right now?",
-    },
-    {
         "url":      "https://techcrunch.com/category/artificial-intelligence/",
         "question": "Are there any major AI funding or product announcements?",
     },
@@ -40,26 +36,67 @@ ROUND_GAP = int(os.environ.get("INDRA_DEMO_GAP", "30"))  # seconds between round
 
 
 def _make_llm_fn():
-    api_key = os.environ.get("ANTHROPIC_API_KEY", "")
-    if not api_key:
-        print("[demo] No ANTHROPIC_API_KEY — showing raw diffs instead of LLM analysis.")
-        return None
-    try:
-        import anthropic
-        client = anthropic.Anthropic(api_key=api_key)
+    groq_key = os.environ.get("GROQ_API_KEY", "")
+    if groq_key:
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=groq_key, base_url="https://api.groq.com/openai/v1")
 
-        def call_llm(prompt: str) -> str:
-            msg = client.messages.create(
-                model="claude-haiku-4-5-20251001",
-                max_tokens=300,
-                messages=[{"role": "user", "content": prompt}],
-            )
-            return msg.content[0].text
+            def call_groq(prompt: str) -> str:
+                msg = client.chat.completions.create(
+                    model="llama-3.1-8b-instant",
+                    max_tokens=300,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return msg.choices[0].message.content
 
-        return call_llm
-    except ImportError:
-        print("[demo] anthropic package not installed — pip install anthropic")
-        return None
+            print("[demo] LLM: Groq (llama-3.1-8b-instant)")
+            return call_groq
+        except ImportError:
+            print("[demo] openai package not installed — pip install openai")
+            return None
+
+    grok_key = os.environ.get("GROK_API_KEY", "")
+    if grok_key:
+        try:
+            from openai import OpenAI
+            client = OpenAI(api_key=grok_key, base_url="https://api.x.ai/v1")
+
+            def call_grok(prompt: str) -> str:
+                msg = client.chat.completions.create(
+                    model="grok-3-mini",
+                    max_tokens=300,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return msg.choices[0].message.content
+
+            print("[demo] LLM: Grok (grok-3-mini)")
+            return call_grok
+        except ImportError:
+            print("[demo] openai package not installed — pip install openai")
+            return None
+
+    anthropic_key = os.environ.get("ANTHROPIC_API_KEY", "")
+    if anthropic_key:
+        try:
+            import anthropic
+            client = anthropic.Anthropic(api_key=anthropic_key)
+
+            def call_llm(prompt: str) -> str:
+                msg = client.messages.create(
+                    model="claude-haiku-4-5-20251001",
+                    max_tokens=300,
+                    messages=[{"role": "user", "content": prompt}],
+                )
+                return msg.content[0].text
+
+            return call_llm
+        except ImportError:
+            print("[demo] anthropic package not installed — pip install anthropic")
+            return None
+
+    print("[demo] No GROQ_API_KEY, GROK_API_KEY, or ANTHROPIC_API_KEY — showing raw diffs instead of LLM analysis.")
+    return None
 
 
 def _countdown(seconds: int) -> None:
@@ -90,7 +127,15 @@ def run_demo():
 
     bd_mode = "Bright Data Web Unlocker" if agent._bd.using_brightdata else "direct requests (no zone configured)"
     print(f"\n  Fetch mode : {bd_mode}")
-    print(f"  LLM        : {'Anthropic claude-haiku-4-5-20251001' if llm_fn else 'disabled (set ANTHROPIC_API_KEY)'}")
+    if os.environ.get("GROQ_API_KEY"):
+        llm_label = "Groq llama-3.1-8b-instant"
+    elif os.environ.get("GROK_API_KEY"):
+        llm_label = "Grok grok-3-mini"
+    elif llm_fn:
+        llm_label = "Anthropic claude-haiku-4-5-20251001"
+    else:
+        llm_label = "disabled (set GROQ_API_KEY, GROK_API_KEY, or ANTHROPIC_API_KEY)"
+    print(f"  LLM        : {llm_label}")
     print(f"  Pages      : {len(MONITORED_PAGES)}")
     print(f"  Rounds     : {ROUNDS}  (gap: {ROUND_GAP}s)")
 

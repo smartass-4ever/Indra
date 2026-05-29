@@ -197,3 +197,100 @@ def run_demo():
         print(f"  Indra          : {s['llm_calls_fired']} LLM calls — {reduction}% reduction.\n")
 
     agent.close()
+
+
+QUICK_PAGES = [
+    {
+        "url":      "https://techcrunch.com/category/artificial-intelligence/",
+        "question": "Are there any major AI funding or product announcements?",
+    },
+    {
+        "url":      "https://www.anthropic.com/pricing",
+        "question": "Did any model prices or tiers change?",
+    },
+    {
+        "url":      "https://github.com/trending",
+        "question": "What new AI/ML repositories are trending today?",
+    },
+]
+
+
+def run_quick_demo():
+    import indra
+
+    api_key = os.environ.get("BRIGHTDATA_API_KEY", "")
+    if not api_key:
+        print("Error: set BRIGHTDATA_API_KEY before running the demo.")
+        return
+
+    # Fresh start every time
+    import glob as _glob
+    for f in _glob.glob("indra_demo*.db*"):
+        try:
+            os.remove(f)
+        except OSError:
+            pass
+
+    print("\n" + "=" * 60)
+    print("  Indra  —  Web Intelligence That Only Thinks")
+    print("            When the Web Changes")
+    print("  Powered by Bright Data")
+    print("=" * 60)
+
+    agent  = indra.init(
+        brightdata_api_key=api_key,
+        db_path="indra_demo.db",
+        unlocker_zone=os.environ.get("BRIGHTDATA_UNLOCKER_ZONE", ""),
+        silent=True,
+    )
+    llm_fn = _make_llm_fn()
+
+    bd_mode = "Bright Data Web Unlocker" if agent._bd.using_brightdata else "direct requests"
+    print(f"\n  Fetching via : {bd_mode}")
+    print(f"  Pages        : {len(QUICK_PAGES)}")
+
+    # Round 1 — baseline
+    print(f"\n{'=' * 60}")
+    print("  Round 1 — Fetching baselines")
+    print(f"{'=' * 60}")
+    for page in QUICK_PAGES:
+        result = agent.watch(url=page["url"], question=page["question"], generation_fn=llm_fn)
+        print(f"  fetched   {result.url.replace('https://','')[:55]}")
+
+    # Round 2 — detect changes immediately
+    print(f"\n{'=' * 60}")
+    print("  Round 2 — Checking for changes")
+    print(f"{'=' * 60}")
+    for page in QUICK_PAGES:
+        result = agent.watch(url=page["url"], question=page["question"], generation_fn=llm_fn)
+        if result.changed:
+            print(f"\n  *** CHANGED *** {result.url.replace('https://','')[:50]}")
+            if result.insight:
+                words, line, lines = result.insight.split(), "  Insight : ", []
+                for w in words:
+                    if len(line) + len(w) + 1 > 72:
+                        lines.append(line)
+                        line = "             " + w + " "
+                    else:
+                        line += w + " "
+                if line.strip():
+                    lines.append(line)
+                print("\n".join(lines))
+            print(f"  Saved    : {result.tokens_saved} tokens  (${result.cost_saved_usd:.4f})\n")
+        else:
+            saved = f"saved {result.tokens_saved} tokens" if result.tokens_saved else "no prior snapshot"
+            print(f"  unchanged {result.url.replace('https://','')[:52]:<52}  {saved}")
+
+    s = agent.stats()
+    naive = s["brightdata_fetches"]
+    print(f"\n{'=' * 60}")
+    print(f"  Bright Data fetches : {s['brightdata_fetches']}")
+    print(f"  LLM calls fired     : {s['llm_calls_fired']}  (naive would be {naive})")
+    print(f"  Tokens saved        : {s['tokens_saved']:,}")
+    print(f"  Cost saved          : ${s['cost_saved_usd']:.4f}")
+    if naive > 0 and s["llm_calls_fired"] < naive:
+        reduction = round(100 * (1 - s["llm_calls_fired"] / naive))
+        print(f"  Reduction           : {reduction}% fewer LLM calls")
+    print(f"{'=' * 60}\n")
+
+    agent.close()

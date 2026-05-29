@@ -42,12 +42,6 @@ from .web.store import WebSnapshotStore
 
 logger = logging.getLogger(__name__)
 
-print(
-    "\n"
-    "  Indra is a work in progress — expect bugs and rough edges.\n"
-    "  Things may break, but we're actively fixing them. Stick with us\n"
-    "  and it'll be solid within a few days. Thanks for trying it early!\n"
-)
 
 _COST_PER_TOKEN   = 0.000003
 _FULL_PAGE_TOKENS = 1500

@@ -9,17 +9,22 @@ def main():
         print(
             "Indra — web intelligence that only thinks when the web changes.\n\n"
             "Usage:\n"
-            "  indra demo           Run the competitor monitor demo\n"
-            "  indra watch <url>    Watch a single URL\n"
-            "  indra reset          Clear the demo snapshot DB (fresh start)\n"
+            "  indra demo            Run the competitor monitor demo\n"
+            "  indra demo --quick    Run a fast 2-round demo (~40 seconds)\n"
+            "  indra watch <url>     Watch a single URL\n"
+            "  indra reset           Clear the demo snapshot DB (fresh start)\n"
         )
         return
 
     cmd = sys.argv[1]
 
     if cmd == "demo":
-        from indra.demo import run_demo
-        run_demo()
+        if len(sys.argv) > 2 and sys.argv[2] == "--quick":
+            from indra.demo import run_quick_demo
+            run_quick_demo()
+        else:
+            from indra.demo import run_demo
+            run_demo()
 
     elif cmd == "reset":
         import glob as _glob

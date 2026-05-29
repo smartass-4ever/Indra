@@ -12,6 +12,23 @@ Shows change detection + LLM savings in real time.
 import os
 import time
 
+
+def _load_env():
+    """Load .env file from current directory if present."""
+    env_path = os.path.join(os.getcwd(), ".env")
+    if not os.path.exists(env_path):
+        return
+    with open(env_path) as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, val = line.partition("=")
+            key = key.strip()
+            val = val.strip().strip('"').strip("'")
+            if key and key not in os.environ:
+                os.environ[key] = val
+
 MONITORED_PAGES = [
     {
         "url":      "https://openai.com/api/pricing/",
@@ -108,6 +125,7 @@ def _countdown(seconds: int) -> None:
 
 
 def run_demo():
+    _load_env()
     import indra
 
     api_key = os.environ.get("BRIGHTDATA_API_KEY", "")
@@ -216,6 +234,7 @@ QUICK_PAGES = [
 
 
 def run_quick_demo():
+    _load_env()
     import indra
 
     api_key = os.environ.get("BRIGHTDATA_API_KEY", "")
@@ -223,13 +242,15 @@ def run_quick_demo():
         print("Error: set BRIGHTDATA_API_KEY before running the demo.")
         return
 
-    # Fresh start every time
+    # Fresh start every time — clear demo and Mnemon DBs
     import glob as _glob
-    for f in _glob.glob("indra_demo*.db*"):
-        try:
-            os.remove(f)
-        except OSError:
-            pass
+    patterns = ["indra_demo*.db*", "mnemon_*_indra.db*", "mnemon_bus_indra.json"]
+    for pattern in patterns:
+        for f in _glob.glob(pattern):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
 
     print("\n" + "=" * 60)
     print("  Indra  —  Web Intelligence That Only Thinks")

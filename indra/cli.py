@@ -58,3 +58,7 @@ def main():
 
     else:
         print(f"Unknown command: {cmd}. Run 'indra --help'.")
+
+
+if __name__ == "__main__":
+    main()

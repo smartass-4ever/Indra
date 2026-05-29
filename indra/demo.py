@@ -302,16 +302,23 @@ def run_quick_demo():
             saved = f"saved {result.tokens_saved} tokens" if result.tokens_saved else "no prior snapshot"
             print(f"  unchanged {result.url.replace('https://','')[:52]:<52}  {saved}")
 
+    # Round 3 — check again immediately, nothing changed, 0 LLM calls
+    print(f"\n{'=' * 60}")
+    print("  Round 3 — Checking again (no time has passed)")
+    print(f"{'=' * 60}")
+    for page in QUICK_PAGES:
+        result = agent.watch(url=page["url"], question=page["question"], generation_fn=llm_fn)
+        print(f"  unchanged {result.url.replace('https://','')[:52]:<52}  saved {result.tokens_saved} tokens")
+
     s = agent.stats()
     naive = s["brightdata_fetches"]
+    reduction = round(100 * (1 - s["llm_calls_fired"] / naive)) if naive > 0 else 0
     print(f"\n{'=' * 60}")
     print(f"  Bright Data fetches : {s['brightdata_fetches']}")
     print(f"  LLM calls fired     : {s['llm_calls_fired']}  (naive would be {naive})")
     print(f"  Tokens saved        : {s['tokens_saved']:,}")
     print(f"  Cost saved          : ${s['cost_saved_usd']:.4f}")
-    if naive > 0 and s["llm_calls_fired"] < naive:
-        reduction = round(100 * (1 - s["llm_calls_fired"] / naive))
-        print(f"  Reduction           : {reduction}% fewer LLM calls")
+    print(f"  Reduction           : {reduction}% fewer LLM calls")
     print(f"{'=' * 60}\n")
 
     agent.close()

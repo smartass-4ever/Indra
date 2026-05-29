@@ -95,7 +95,7 @@ class BrightDataClient:
         return self._search_direct(query, num_results)
 
     def _fetch_brightdata(self, url: str, render_js: bool) -> str:
-        payload: Dict[str, Any] = {"url": url, "zone": self.unlocker_zone}
+        payload: Dict[str, Any] = {"url": url, "zone": self.unlocker_zone, "format": "raw"}
         if render_js:
             payload["render_js"] = True
         try:

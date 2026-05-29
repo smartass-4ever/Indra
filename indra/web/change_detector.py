@@ -85,9 +85,11 @@ def build_change_prompt(url: str, diff: str, question: str) -> str:
     The LLM never sees the full page — only the delta.
     """
     return (
-        f"A monitored webpage changed. Answer the question in 1-2 plain sentences. "
-        f"No JSON, no bullet points, no preamble — just the answer.\n\n"
+        f"You are a web monitoring assistant. Reply with plain English only — "
+        f"no JSON, no code blocks, no bullet points, no 'position' fields. "
+        f"Write exactly 1-2 sentences answering the question based on the diff.\n\n"
         f"URL: {url}\n\n"
         f"Diff:\n```\n{diff}\n```\n\n"
-        f"Question: {question}"
+        f"Question: {question}\n\n"
+        f"Answer (1-2 plain sentences):"
     )

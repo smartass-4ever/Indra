@@ -375,8 +375,11 @@ class Indra:
         if generation_fn is None:
             return ""
         prompt = (
-            f"Answer in 1-2 plain sentences. No JSON, no bullet points, no preamble.\n\n"
-            f"URL: {url}\n\nContent:\n{content[:3000]}\n\nQuestion: {question}"
+            f"You are a web monitoring assistant. Reply with plain English only — "
+            f"no JSON, no code blocks, no bullet points. Write exactly 1-2 sentences.\n\n"
+            f"URL: {url}\n\nContent:\n{content[:3000]}\n\n"
+            f"Question: {question}\n\n"
+            f"Answer (1-2 plain sentences):"
         )
         return self._call_via_mnemon(prompt, url, generation_fn)
 

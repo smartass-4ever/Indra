@@ -97,19 +97,130 @@ Round 2 — Incremental check
 
 ---
 
+## Quick Start
+
+```bash
+pip install indra-ai
+```
+
+Set your API keys:
+
+```bash
+# Required — Bright Data account (brightdata.com)
+export BRIGHTDATA_API_KEY="your-bright-data-api-key"
+export BRIGHTDATA_UNLOCKER_ZONE="web_unlocker1"   # zone name from your Bright Data dashboard
+
+# LLM — pick one
+export GROQ_API_KEY="your-groq-key"       # groq.com — free tier available
+export GROK_API_KEY="your-grok-key"       # xAI
+export ANTHROPIC_API_KEY="your-key"       # Anthropic
+```
+
+Run the built-in demo:
+
+```bash
+indra demo
+```
+
+---
+
+## Live Demo Output
+
+Real run on 2026-05-29 — 4 pages monitored, 3 rounds, Bright Data Web Unlocker + Groq LLM:
+
+```
+============================================================
+  Indra  -  Web Intelligence That Only Thinks When
+            the Web Changes
+  Powered by Bright Data + Mnemon
+============================================================
+
+  Fetch mode : Bright Data Web Unlocker
+  LLM        : Groq llama-3.1-8b-instant
+  Pages      : 4
+  Rounds     : 3  (gap: 30s)
+
+============================================================
+  Round 1 / 3  -  Baseline (first observation)
+============================================================
+  unchanged   openai.com/api/pricing/                               first observation
+  unchanged   www.anthropic.com/pricing                             first observation
+  unchanged   techcrunch.com/category/artificial-intelligence/      first observation
+  unchanged   github.com/trending                                   first observation
+
+  Running total:  4 fetches  |  4 LLM calls  |  0 tokens saved  |  $0.0000 saved
+
+============================================================
+  Round 2 / 3  -  Incremental check
+============================================================
+
+  *** CHANGED *** https://openai.com/api/pricing/
+  Summary  : +1 lines, -1 lines
+  Insight  : No changes in API prices were found in the provided diff.
+  Tokens   : saved 1200 tokens on diff
+
+  unchanged   www.anthropic.com/pricing                             saved 1500 tokens
+  unchanged   techcrunch.com/category/artificial-intelligence/      saved 1500 tokens
+
+  *** CHANGED *** https://github.com/trending
+  Summary  : +1 lines, -1 lines
+  Insight  : Today, several new AI/ML repositories are trending,
+             including Leonxlnx's Taste-Skill, which gives your AI
+             good taste, and hardikpandya's stop-slop skill file that
+             removes AI tells from prose.
+  Tokens   : saved 1200 tokens on diff
+
+  Running total:  8 fetches  |  6 LLM calls  |  5,400 tokens saved  |  $0.0162 saved
+
+============================================================
+  Round 3 / 3  -  Incremental check
+============================================================
+
+  *** CHANGED *** https://openai.com/api/pricing/
+  Summary  : +1 lines, -1 lines
+  Insight  : No changes in API prices were found in the provided diff.
+  Tokens   : saved 1200 tokens on diff
+
+  unchanged   www.anthropic.com/pricing                             saved 1500 tokens
+  unchanged   techcrunch.com/category/artificial-intelligence/      saved 1500 tokens
+
+  *** CHANGED *** https://github.com/trending
+  Summary  : +1 lines, -1 lines
+  Insight  : Today, several new AI/ML repositories are trending,
+             including Leonxlnx's Taste-Skill, which gives your AI
+             good taste, and hardikpandya's stop-slop skill file that
+             removes AI tells from prose.
+  Tokens   : saved 1200 tokens on diff
+
+  Running total:  12 fetches  |  8 LLM calls  |  10,800 tokens saved  |  $0.0324 saved
+
+--------------------------------------------------
+  Indra Session Summary
+--------------------------------------------------
+  Bright Data fetches : 12
+  Changes detected    : 4
+  LLM calls fired     : 8
+  Cache hits          : 4
+  Tokens saved        : 10,800
+  Cost saved          : $0.0324
+  Efficiency          : 60%
+--------------------------------------------------
+
+  Naive approach : 12 LLM calls for 12 pages.
+  Indra          : 8 LLM calls — 33% reduction.
+```
+
+---
+
 ## Install
 
 ```bash
 pip install indra-ai
-
-# required
-export BRIGHTDATA_API_KEY="your-bright-data-api-key"
-
-# optional — enables LLM analysis on changes
-export ANTHROPIC_API_KEY="your-anthropic-key"
 ```
 
-Get $250 in Bright Data credits at [brightdata.com](https://brightdata.com) — enough to run thousands of monitored pages.
+**Required:** A [Bright Data](https://brightdata.com) account with a Web Unlocker zone (`BRIGHTDATA_API_KEY` + `BRIGHTDATA_UNLOCKER_ZONE`).
+
+**LLM:** Groq (free tier at groq.com), xAI Grok, or Anthropic — set whichever key you have.
 
 ---
 

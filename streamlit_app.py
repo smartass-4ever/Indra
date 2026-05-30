@@ -75,9 +75,9 @@ with st.sidebar:
         value=os.getenv("BRIGHTDATA_UNLOCKER_ZONE", "web_unlocker1"),
         help="Your Bright Data Web Unlocker zone name"
     )
-    anthropic_key = st.text_input(
-        "Anthropic API Key",
-        value=os.getenv("ANTHROPIC_API_KEY", ""),
+    groq_key = st.text_input(
+        "Groq API Key",
+        value=os.getenv("GROQ_API_KEY", ""),
         type="password",
         help="For LLM analysis on changes"
     )
@@ -116,19 +116,19 @@ def get_agent():
 
 
 def get_llm_fn():
-    key = anthropic_key or os.getenv("ANTHROPIC_API_KEY")
+    key = groq_key or os.getenv("GROQ_API_KEY")
     if not key:
         return None
     try:
-        from anthropic import Anthropic
-        client = Anthropic(api_key=key)
+        from groq import Groq
+        client = Groq(api_key=key)
         def generate(prompt: str) -> str:
-            msg = client.messages.create(
-                model="claude-haiku-4-5-20251001",
+            msg = client.chat.completions.create(
+                model="llama-3.1-8b-instant",
                 max_tokens=400,
                 messages=[{"role": "user", "content": prompt}],
             )
-            return msg.content[0].text
+            return msg.choices[0].message.content
         return generate
     except Exception:
         return None

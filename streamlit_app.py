@@ -137,28 +137,13 @@ def get_llm_fn():
 # ── Watch history ─────────────────────────────────────────────────────────────
 if "history" not in st.session_state:
     st.session_state.history = []
-
-# ── Main input ────────────────────────────────────────────────────────────────
-col1, col2 = st.columns([3, 1])
-with col1:
-    url = st.text_input(
-        "URL to watch",
-        placeholder="https://competitor.com/pricing",
-        label_visibility="collapsed"
-    )
-with col2:
-    render_js = st.checkbox("Render JS", value=False, help="Enable for JavaScript-heavy pages")
-
-question = st.text_input(
-    "Question",
-    placeholder="What changed? Did prices update?",
-    label_visibility="collapsed"
-)
-
-watch_btn = st.button("Watch", type="primary", use_container_width=True)
+if "preset_url" not in st.session_state:
+    st.session_state.preset_url = ""
+if "preset_question" not in st.session_state:
+    st.session_state.preset_question = ""
 
 # ── Preset URLs ───────────────────────────────────────────────────────────────
-st.caption("Try: ")
+st.caption("Try a preset:")
 preset_cols = st.columns(4)
 presets = [
     ("OpenAI Pricing", "https://openai.com/api/pricing/", "Did API prices change?"),
@@ -168,8 +153,29 @@ presets = [
 ]
 for i, (label, preset_url, preset_q) in enumerate(presets):
     if preset_cols[i].button(label, use_container_width=True):
-        url = preset_url
-        question = preset_q
+        st.session_state.preset_url = preset_url
+        st.session_state.preset_question = preset_q
+
+# ── Main input ────────────────────────────────────────────────────────────────
+col1, col2 = st.columns([3, 1])
+with col1:
+    url = st.text_input(
+        "URL to watch",
+        value=st.session_state.preset_url,
+        placeholder="https://competitor.com/pricing",
+        label_visibility="collapsed"
+    )
+with col2:
+    render_js = st.checkbox("Render JS", value=False, help="Enable for JavaScript-heavy pages")
+
+question = st.text_input(
+    "Question",
+    value=st.session_state.preset_question,
+    placeholder="What changed? Did prices update?",
+    label_visibility="collapsed"
+)
+
+watch_btn = st.button("Watch", type="primary", use_container_width=True)
 
 st.divider()
 

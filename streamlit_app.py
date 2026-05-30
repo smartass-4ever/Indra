@@ -57,6 +57,7 @@ st.markdown("""
 # ── Header ────────────────────────────────────────────────────────────────────
 st.title("Indra")
 st.markdown("**Web monitoring agent built on Bright Data.** Fetches every time. Calls the LLM only when something changes.")
+st.info("**How to demo:** First Watch = baseline observation (page is stored, no savings yet). Second Watch on the same URL = real savings — 0 tokens if nothing changed, diff-only if it did.")
 st.markdown("`pip install indra-ai` · [GitHub](https://github.com/smartass-4ever/Indra) · [PyPI](https://pypi.org/project/indra-ai/)")
 st.divider()
 

@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Monitor Website Changes with Python and an LLM — Indra</title>
+  <meta name="description" content="A complete guide to building a website change detection agent in Python — hashing, diffing, and only invoking the LLM when content actually changes. Handles bot-protected sites too." />
+  <meta name="keywords" content="monitor website changes python, website change detection python, python website monitor, detect website changes python, web page change monitor python, website diff python, track webpage changes python, website change alert python, monitor web page python, web change detection llm, python check if website changed, automated website monitoring" />
+  <meta property="og:title" content="How to Monitor Website Changes with Python and an LLM — Indra" />
+  <meta property="og:description" content="Build a website change detector that only invokes the LLM when content actually changes." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://smartass-4ever.github.io/Indra/blog/monitor-website-changes-python" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://smartass-4ever.github.io/Indra/blog/monitor-website-changes-python" />
+  <link rel="sitemap" type="application/xml" href="/Indra/sitemap.xml" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"How to Monitor Website Changes with Python and an LLM","author":{"@type":"Person","name":"Mahika Jadhav"},"datePublished":"2026-05-31","publisher":{"@type":"Organization","name":"Indra"},"url":"https://smartass-4ever.github.io/Indra/blog/monitor-website-changes-python"}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0d1117; color: #e6edf3; line-height: 1.7; }
+    a { color: #58a6ff; text-decoration: none; } a:hover { text-decoration: underline; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px; }
+    .breadcrumb { font-size: 0.85rem; color: #8b949e; margin-bottom: 32px; }
+    .breadcrumb a { color: #8b949e; } .breadcrumb a:hover { color: #58a6ff; }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; font-weight: 600; margin: 36px 0 12px; color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
+    p { margin-bottom: 16px; color: #c9d1d9; }
+    pre { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.875rem; margin: 16px 0; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.875rem; }
+    p code, li code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #e6edf3; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+    th { background: #161b22; padding: 10px 14px; text-align: left; color: #8b949e; font-weight: 600; border-bottom: 1px solid #21262d; }
+    td { padding: 10px 14px; border-bottom: 1px solid #21262d; color: #c9d1d9; } td strong { color: #3fb950; }
+    ul, ol { padding-left: 24px; margin-bottom: 16px; color: #c9d1d9; } li { margin-bottom: 6px; }
+    .meta { color: #8b949e; font-size: 0.875rem; margin-bottom: 32px; }
+    .note { background: #161b22; border-left: 3px solid #3fb950; padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 16px 0; font-size: 0.9rem; color: #8b949e; }
+    hr { border: none; border-top: 1px solid #21262d; margin: 32px 0; }
+    .cta { background: #238636; color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; display: inline-block; margin: 8px 8px 8px 0; }
+    .cta:hover { background: #2ea043; text-decoration: none; }
+    .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #21262d; color: #8b949e; font-size: 0.85rem; }
+    .tags { margin-top: 32px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { background: #161b22; border: 1px solid #21262d; color: #8b949e; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb"><a href="/Indra/">Indra</a> › <a href="/Indra/blog/">Blog</a> › Monitor Website Changes Python</div>
+  <h1>How to Monitor Website Changes with Python and an LLM</h1>
+  <p class="meta">By Mahika Jadhav · May 31, 2026 · 7 min read</p>
+
+  <p>You want to know when a website changes — a competitor's product page, a regulatory filing, a supplier's lead times, a news feed. Python makes it easy to fetch pages. The challenge is doing it intelligently: not hammering the LLM with unchanged content, not getting blocked by anti-bot systems, and actually getting useful summaries of what changed.</p>
+  <p>Here's the complete guide.</p>
+
+  <h2>The naive approach (and why it's expensive)</h2>
+  <pre><code># Don't do this
+import requests
+from openai import OpenAI
+
+client = OpenAI()
+
+def check_for_changes(url):
+    page = requests.get(url).text
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[{"role": "user", "content": f"What changed on this page?\n\n{page}"}]
+    )
+    return response.choices[0].message.content
+
+# Runs every hour. Page hasn't changed in 6 days.
+# You've paid for 144 LLM calls that all say "nothing changed."</code></pre>
+  <p>The problem: <strong>you're asking the LLM to check for changes when the LLM doesn't know what it looked like before.</strong> And even if you provide the diff, you're still calling the LLM when there is no diff to provide.</p>
+
+  <h2>The right approach: hash, compare, diff, then LLM</h2>
+  <pre><code>import hashlib, sqlite3, difflib, requests
+
+def get_content_hash(url):
+    return hashlib.sha256(requests.get(url).text.encode()).hexdigest()
+
+def get_diff(old_content, new_content):
+    return "\n".join(difflib.unified_diff(
+        old_content.splitlines(), new_content.splitlines(),
+        lineterm=""
+    ))
+
+# Step 1: fetch and hash — free
+new_hash = get_content_hash(url)
+old_hash = db.get_hash(url)
+
+# Step 2: if unchanged, skip the LLM entirely
+if new_hash == old_hash:
+    return {"changed": False, "insight": cached_insight}
+
+# Step 3: only if changed, build diff and call LLM
+diff = get_diff(old_content, new_content)
+insight = llm.analyze(diff)  # much cheaper — diff is tiny vs full page</code></pre>
+
+  <h2>Using Indra (handles all of this + bot detection)</h2>
+  <p><a href="https://github.com/smartass-4ever/Indra">Indra</a> implements the hash-compare-diff-LLM pipeline, plus Bright Data integration for sites that block scrapers.</p>
+  <pre><code>pip install indra-ai</code></pre>
+  <pre><code>import indra
+from anthropic import Anthropic
+
+agent = indra.init(brightdata_api_key="your-bd-key")
+client = Anthropic()
+
+def analyze(goal, inputs, *_):
+    content = inputs.get("diff") or inputs.get("content", "")
+    return client.messages.create(
+        model="claude-haiku-4-5", max_tokens=512,
+        messages=[{"role": "user", "content": f"{goal}\n\n{content}"}]
+    ).content[0].text
+
+result = agent.watch(
+    url="https://example.com/page-to-monitor",
+    question="Summarize what changed and whether it's significant",
+    generation_fn=analyze,
+)
+
+if result.changed:
+    print(f"CHANGED: {result.insight}")
+    print(f"Tokens used: {result.tokens_used}")
+else:
+    print(f"No change. Tokens saved: {result.tokens_saved}")</code></pre>
+
+  <h2>Handling JavaScript-rendered pages</h2>
+  <p>Many modern sites render content with JavaScript — a simple <code>requests.get()</code> returns the skeleton HTML, not the actual content. Indra's Bright Data integration handles this automatically via the Web Unlocker, which executes JavaScript before returning the page.</p>
+  <pre><code># Same code — Bright Data handles JS rendering transparently
+result = agent.watch(
+    url="https://react-app.com/pricing",  # JS-rendered
+    question="Did pricing change?",
+    generation_fn=analyze,
+)</code></pre>
+
+  <h2>Monitoring multiple pages</h2>
+  <pre><code>pages = [
+    {"url": "https://site1.com/docs/changelog", "question": "New features or breaking changes?"},
+    {"url": "https://site2.com/pricing", "question": "Price or tier changes?"},
+    {"url": "https://site3.com/status", "question": "Any new incidents or outages?"},
+]
+
+for page in pages:
+    result = agent.watch(
+        url=page["url"],
+        question=page["question"],
+        generation_fn=analyze,
+    )
+    if result.changed:
+        notify(page["url"], result.insight)</code></pre>
+
+  <h2>Session analytics</h2>
+  <pre><code>stats = agent.get_stats()
+print(f"Fetches: {stats['total_fetches']}")
+print(f"Changes detected: {stats['changes_detected']}")
+print(f"LLM calls fired: {stats['llm_calls_fired']}")
+print(f"Tokens saved: {stats['tokens_saved']}")
+print(f"Cost saved: ${stats['cost_saved_usd']:.4f}")</code></pre>
+
+  <hr />
+  <a class="cta" href="https://github.com/smartass-4ever/Indra">GitHub</a>
+  <a href="https://pypi.org/project/indra-ai/" style="color:#58a6ff; margin-left: 8px;">pip install indra-ai</a>
+  <div class="tags"><span class="tag">website-monitoring</span><span class="tag">change-detection</span><span class="tag">python</span><span class="tag">web-scraping</span><span class="tag">llm</span></div>
+  <div class="footer"><a href="/Indra/blog/">← All posts</a> · <a href="/Indra/blog/competitor-price-monitoring-python">Competitor price monitoring →</a></div>
+</div>
+</body>
+</html>

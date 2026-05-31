@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Building an LLM Agent with Bright Data — Web Intelligence That Scales — Indra</title>
+  <meta name="description" content="Bright Data handles bot detection, CAPTCHAs, and geo-restrictions. Indra handles the LLM routing and change detection. Here's how to build production web intelligence agents that actually work." />
+  <meta name="keywords" content="bright data llm agent, bright data python tutorial, bright data web unlocker python, bright data ai agent, bright data scraping llm, bright data web intelligence, bright data python example, bright data agent python, web unlocker python, bright data openai, bright data anthropic, bright data change detection" />
+  <meta property="og:title" content="Building an LLM Agent with Bright Data — Web Intelligence That Scales" />
+  <meta property="og:description" content="Bright Data + LLM change detection: build web intelligence agents that bypass bot detection and only fire on real changes." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://smartass-4ever.github.io/Indra/blog/bright-data-llm-agent" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://smartass-4ever.github.io/Indra/blog/bright-data-llm-agent" />
+  <link rel="sitemap" type="application/xml" href="/Indra/sitemap.xml" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Building an LLM Agent with Bright Data — Web Intelligence That Scales","author":{"@type":"Person","name":"Mahika Jadhav"},"datePublished":"2026-05-31","publisher":{"@type":"Organization","name":"Indra"},"url":"https://smartass-4ever.github.io/Indra/blog/bright-data-llm-agent"}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0d1117; color: #e6edf3; line-height: 1.7; }
+    a { color: #58a6ff; text-decoration: none; } a:hover { text-decoration: underline; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px; }
+    .breadcrumb { font-size: 0.85rem; color: #8b949e; margin-bottom: 32px; }
+    .breadcrumb a { color: #8b949e; } .breadcrumb a:hover { color: #58a6ff; }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; font-weight: 600; margin: 36px 0 12px; color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
+    p { margin-bottom: 16px; color: #c9d1d9; }
+    pre { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.875rem; margin: 16px 0; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.875rem; }
+    p code, li code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #e6edf3; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+    th { background: #161b22; padding: 10px 14px; text-align: left; color: #8b949e; font-weight: 600; border-bottom: 1px solid #21262d; }
+    td { padding: 10px 14px; border-bottom: 1px solid #21262d; color: #c9d1d9; } td strong { color: #3fb950; }
+    ul, ol { padding-left: 24px; margin-bottom: 16px; color: #c9d1d9; } li { margin-bottom: 6px; }
+    .meta { color: #8b949e; font-size: 0.875rem; margin-bottom: 32px; }
+    .note { background: #161b22; border-left: 3px solid #3fb950; padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 16px 0; font-size: 0.9rem; color: #8b949e; }
+    hr { border: none; border-top: 1px solid #21262d; margin: 32px 0; }
+    .cta { background: #238636; color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; display: inline-block; margin: 8px 8px 8px 0; }
+    .cta:hover { background: #2ea043; text-decoration: none; }
+    .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #21262d; color: #8b949e; font-size: 0.85rem; }
+    .tags { margin-top: 32px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { background: #161b22; border: 1px solid #21262d; color: #8b949e; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb"><a href="/Indra/">Indra</a> › <a href="/Indra/blog/">Blog</a> › Bright Data LLM Agent</div>
+  <h1>Building an LLM Agent with Bright Data — Web Intelligence That Scales</h1>
+  <p class="meta">By Mahika Jadhav · May 31, 2026 · 6 min read</p>
+
+  <p>Building a web intelligence agent has two hard problems: <strong>getting the data</strong> and <strong>interpreting it efficiently.</strong> Most tutorials focus on the LLM side and wave away the fetching problem with <code>requests.get()</code>. In production, that breaks immediately — competitor sites block scrapers, JavaScript renders content dynamically, and geo-restrictions show different data to different IPs.</p>
+  <p>Here's how to solve both problems together: Bright Data for reliable data access, Indra for intelligent change-driven LLM routing.</p>
+
+  <h2>What Bright Data solves</h2>
+  <ul>
+    <li><strong>Bot detection:</strong> Rotating residential proxies make your fetches look like real users</li>
+    <li><strong>JavaScript rendering:</strong> Web Unlocker executes JS before returning the page</li>
+    <li><strong>CAPTCHA solving:</strong> Handled automatically</li>
+    <li><strong>Geo-restrictions:</strong> Fetch from specific countries to see region-specific content</li>
+  </ul>
+  <p>Without a proper fetching layer, your agent works on easy public pages and breaks on everything important.</p>
+
+  <h2>What Indra adds on top</h2>
+  <p>Bright Data solves fetching. But fetching reliably every hour still costs money if you're invoking the LLM on every fetch — even unchanged pages. Indra adds change detection on top of Bright Data: hash the response, compare to the last snapshot, and only route to the LLM when something actually changed.</p>
+
+  <h2>Complete setup</h2>
+  <pre><code>pip install indra-ai</code></pre>
+  <pre><code>import indra
+from anthropic import Anthropic
+
+# Initialize with Bright Data credentials
+agent = indra.init(
+    brightdata_api_key="your-brightdata-key",
+    brightdata_zone="web_unlocker1",  # your zone name
+)
+
+client = Anthropic()
+
+def analyze(goal, inputs, *_):
+    content = inputs.get("diff") or inputs.get("content", "")
+    return client.messages.create(
+        model="claude-haiku-4-5",
+        max_tokens=1024,
+        messages=[{"role": "user", "content": f"{goal}\n\n{content}"}]
+    ).content[0].text
+
+# Monitor a JS-heavy competitor site
+result = agent.watch(
+    url="https://competitor.com/pricing",
+    question="Did pricing, features, or availability change? Summarize the impact.",
+    generation_fn=analyze,
+)
+
+print(f"Changed: {result.changed}")
+print(f"Insight: {result.insight}")
+print(f"Tokens saved: {result.tokens_saved}")</code></pre>
+
+  <h2>SERP monitoring (search intelligence)</h2>
+  <pre><code># Monitor search results for a query
+result = agent.search_watch(
+    query="your brand name review",
+    question="Are there new negative reviews or competitor ads appearing?",
+    generation_fn=analyze,
+)
+
+if result.changed:
+    print(f"SERP changed: {result.insight}")</code></pre>
+
+  <h2>Monitoring with geo-targeting</h2>
+  <pre><code># Check competitor pricing in different regions
+regions = ["us", "uk", "de", "jp"]
+
+for region in regions:
+    result = agent.watch(
+        url="https://competitor.com/pricing",
+        question="What pricing is shown? Any regional differences from last check?",
+        generation_fn=analyze,
+        country=region,  # Bright Data fetches from this country
+    )
+    if result.changed:
+        print(f"[{region.upper()}] Pricing change: {result.insight}")</code></pre>
+
+  <h2>Getting Bright Data credentials</h2>
+  <ol>
+    <li>Sign up at <strong>brightdata.com</strong></li>
+    <li>Create a Web Unlocker zone (or use an existing proxy zone)</li>
+    <li>Copy your API key and zone name</li>
+    <li>Set <code>BRIGHTDATA_API_KEY</code> and <code>BRIGHTDATA_UNLOCKER_ZONE</code> env vars</li>
+  </ol>
+  <pre><code>import os
+agent = indra.init(
+    brightdata_api_key=os.environ["BRIGHTDATA_API_KEY"],
+    brightdata_zone=os.environ.get("BRIGHTDATA_UNLOCKER_ZONE", "web_unlocker1"),
+)</code></pre>
+
+  <div class="note">Bright Data offers a free trial with enough credits to test your monitoring setup. Indra's change detection means you'll use fewer Bright Data credits too — each fetch only triggers an LLM call if the content actually changed.</div>
+  <hr />
+  <a class="cta" href="https://github.com/smartass-4ever/Indra">GitHub</a>
+  <a href="https://pypi.org/project/indra-ai/" style="color:#58a6ff; margin-left: 8px;">pip install indra-ai</a>
+  <div class="tags"><span class="tag">bright-data</span><span class="tag">web-intelligence</span><span class="tag">python</span><span class="tag">llm-agent</span><span class="tag">web-scraping</span></div>
+  <div class="footer"><a href="/Indra/blog/">← All posts</a> · <a href="/Indra/blog/competitor-price-monitoring-python">Competitor monitoring →</a></div>
+</div>
+</body>
+</html>

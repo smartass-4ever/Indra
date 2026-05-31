@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Automate Competitor Monitoring in Python — The Complete Guide — Indra</title>
+  <meta name="description" content="How to build a fully automated competitor monitoring system in Python — pricing, messaging, product changes — that alerts you only when something meaningful changes." />
+  <meta name="keywords" content="competitor monitoring automation python, automated competitor tracking python, competitor intelligence python, competitive monitoring python, automate competitor analysis python, competitor watch python, competitive intelligence automation, monitor competitors python, competitor tracking tool python, automated competitive analysis" />
+  <meta property="og:title" content="Automate Competitor Monitoring in Python — The Complete Guide" />
+  <meta property="og:description" content="Build a fully automated competitor monitoring system — pricing, messaging, product changes — alerting only on real changes." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://smartass-4ever.github.io/Indra/blog/competitor-monitoring-automation-python" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://smartass-4ever.github.io/Indra/blog/competitor-monitoring-automation-python" />
+  <link rel="sitemap" type="application/xml" href="/Indra/sitemap.xml" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Automate Competitor Monitoring in Python — The Complete Guide","author":{"@type":"Person","name":"Mahika Jadhav"},"datePublished":"2026-05-31","publisher":{"@type":"Organization","name":"Indra"},"url":"https://smartass-4ever.github.io/Indra/blog/competitor-monitoring-automation-python"}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0d1117; color: #e6edf3; line-height: 1.7; }
+    a { color: #58a6ff; text-decoration: none; } a:hover { text-decoration: underline; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px; }
+    .breadcrumb { font-size: 0.85rem; color: #8b949e; margin-bottom: 32px; }
+    .breadcrumb a { color: #8b949e; } .breadcrumb a:hover { color: #58a6ff; }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; font-weight: 600; margin: 36px 0 12px; color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
+    p { margin-bottom: 16px; color: #c9d1d9; }
+    pre { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.875rem; margin: 16px 0; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.875rem; }
+    p code, li code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #e6edf3; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+    th { background: #161b22; padding: 10px 14px; text-align: left; color: #8b949e; font-weight: 600; border-bottom: 1px solid #21262d; }
+    td { padding: 10px 14px; border-bottom: 1px solid #21262d; color: #c9d1d9; } td strong { color: #3fb950; }
+    ul, ol { padding-left: 24px; margin-bottom: 16px; color: #c9d1d9; } li { margin-bottom: 6px; }
+    .meta { color: #8b949e; font-size: 0.875rem; margin-bottom: 32px; }
+    .note { background: #161b22; border-left: 3px solid #3fb950; padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 16px 0; font-size: 0.9rem; color: #8b949e; }
+    hr { border: none; border-top: 1px solid #21262d; margin: 32px 0; }
+    .cta { background: #238636; color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; display: inline-block; margin: 8px 8px 8px 0; }
+    .cta:hover { background: #2ea043; text-decoration: none; }
+    .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #21262d; color: #8b949e; font-size: 0.85rem; }
+    .tags { margin-top: 32px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { background: #161b22; border: 1px solid #21262d; color: #8b949e; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb"><a href="/Indra/">Indra</a> › <a href="/Indra/blog/">Blog</a> › Competitor Monitoring Automation Python</div>
+  <h1>Automate Competitor Monitoring in Python — The Complete Guide</h1>
+  <p class="meta">By Mahika Jadhav · May 31, 2026 · 7 min read</p>
+
+  <p>Manual competitor research is slow, inconsistent, and expensive in human time. Automated monitoring solves consistency — but naive implementations trade human time for LLM spend, calling the model on every check whether or not anything changed. Here's how to build a complete automated competitor intelligence system that only fires the LLM on real changes.</p>
+
+  <h2>What to monitor</h2>
+  <p>A complete competitor monitoring setup watches multiple signal types:</p>
+  <table>
+    <tr><th>Signal</th><th>URL type</th><th>Check frequency</th></tr>
+    <tr><td>Pricing changes</td><td>/pricing</td><td>Every 2–4 hours</td></tr>
+    <tr><td>Product updates</td><td>/changelog, /release-notes</td><td>Every 4–6 hours</td></tr>
+    <tr><td>Homepage messaging</td><td>/</td><td>Daily</td></tr>
+    <tr><td>Job postings</td><td>/careers, /jobs</td><td>Daily</td></tr>
+    <tr><td>Blog / content</td><td>/blog</td><td>Every 6–12 hours</td></tr>
+    <tr><td>SERP positions</td><td>search_watch()</td><td>Daily</td></tr>
+  </table>
+
+  <h2>Building the monitoring config</h2>
+  <pre><code>COMPETITORS = {
+    "competitor-a": {
+        "pricing": "https://competitor-a.com/pricing",
+        "changelog": "https://competitor-a.com/changelog",
+        "homepage": "https://competitor-a.com/",
+        "blog": "https://competitor-a.com/blog",
+    },
+    "competitor-b": {
+        "pricing": "https://competitor-b.com/plans",
+        "homepage": "https://competitor-b.com/",
+        "jobs": "https://competitor-b.com/careers",
+    },
+}
+
+QUESTIONS = {
+    "pricing": "Did pricing, tiers, or feature availability change? What specifically?",
+    "changelog": "What new features, fixes, or deprecations were announced?",
+    "homepage": "Did the main value proposition, headline, or CTA change?",
+    "blog": "Were any new posts published? What are they about?",
+    "jobs": "Were new roles posted? What functions are they hiring in?",
+}</code></pre>
+
+  <h2>The monitoring loop</h2>
+  <pre><code>import indra
+from anthropic import Anthropic
+
+agent = indra.init(brightdata_api_key="your-bd-key")
+client = Anthropic()
+
+def analyze(goal, inputs, *_):
+    content = inputs.get("diff") or inputs.get("content", "")
+    return client.messages.create(
+        model="claude-haiku-4-5", max_tokens=512,
+        messages=[{"role": "user", "content": f"{goal}\n\n{content}"}]
+    ).content[0].text
+
+alerts = []
+
+for company, pages in COMPETITORS.items():
+    for page_type, url in pages.items():
+        result = agent.watch(
+            url=url,
+            question=QUESTIONS.get(page_type, "What changed?"),
+            generation_fn=analyze,
+        )
+
+        if result.changed:
+            alerts.append({
+                "company": company,
+                "type": page_type,
+                "url": url,
+                "insight": result.insight,
+            })
+
+# Send all alerts in one digest
+if alerts:
+    send_competitive_digest(alerts)
+
+# Log efficiency
+stats = agent.get_stats()
+total_pages = sum(len(p) for p in COMPETITORS.values())
+print(f"Checked {stats['total_fetches']} pages, {stats['changes_detected']} changed")
+print(f"LLM called {stats['llm_calls_fired']} times (vs {stats['total_fetches']} naive)")</code></pre>
+
+  <h2>Sending alerts to Slack</h2>
+  <pre><code>import requests
+
+def send_competitive_digest(alerts):
+    blocks = [{"type": "header", "text": {"type": "plain_text", "text": "🔍 Competitor Changes Detected"}}]
+
+    for alert in alerts:
+        blocks.append({
+            "type": "section",
+            "text": {
+                "type": "mrkdwn",
+                "text": f"*{alert['company'].title()}* — {alert['type']}\n{alert['insight']}\n<{alert['url']}|View page>"
+            }
+        })
+
+    requests.post(SLACK_WEBHOOK_URL, json={"blocks": blocks})</code></pre>
+
+  <div class="note">Run this on a schedule — GitHub Actions cron, a simple VPS with cron, or any task scheduler. The state (content fingerprints) persists to SQLite automatically, so each run picks up exactly where the last one left off.</div>
+  <hr />
+  <a class="cta" href="https://github.com/smartass-4ever/Indra">GitHub</a>
+  <a href="https://pypi.org/project/indra-ai/" style="color:#58a6ff; margin-left: 8px;">pip install indra-ai</a>
+  <div class="tags"><span class="tag">competitor-monitoring</span><span class="tag">automation</span><span class="tag">python</span><span class="tag">competitive-intelligence</span><span class="tag">web-scraping</span></div>
+  <div class="footer"><a href="/Indra/blog/">← All posts</a> · <a href="/Indra/blog/competitor-price-monitoring-python">Price monitoring →</a></div>
+</div>
+</body>
+</html>

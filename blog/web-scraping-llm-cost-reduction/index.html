@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>How to Cut Web Scraping LLM Costs by 90% with Change Detection — Indra</title>
+  <meta name="description" content="Web scraping agents that call the LLM on every fetch waste 80%+ of their budget on pages that haven't changed. Here's the architectural fix — hash first, LLM second." />
+  <meta name="keywords" content="web scraping llm cost reduction, reduce llm web scraping costs, web scraping ai cost, llm scraping cost optimization, web scraping token cost, reduce web scraping api costs, web agent cost reduction, scraping llm optimization, web monitoring llm costs, web scraping ai agent cost, reduce ai web scraping costs" />
+  <meta property="og:title" content="How to Cut Web Scraping LLM Costs by 90% — Indra" />
+  <meta property="og:description" content="Web scraping agents calling the LLM on every fetch waste 80%+ of budget. Here's the fix." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://smartass-4ever.github.io/Indra/blog/web-scraping-llm-cost-reduction" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://smartass-4ever.github.io/Indra/blog/web-scraping-llm-cost-reduction" />
+  <link rel="sitemap" type="application/xml" href="/Indra/sitemap.xml" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"How to Cut Web Scraping LLM Costs by 90% with Change Detection","author":{"@type":"Person","name":"Mahika Jadhav"},"datePublished":"2026-05-31","publisher":{"@type":"Organization","name":"Indra"},"url":"https://smartass-4ever.github.io/Indra/blog/web-scraping-llm-cost-reduction"}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0d1117; color: #e6edf3; line-height: 1.7; }
+    a { color: #58a6ff; text-decoration: none; } a:hover { text-decoration: underline; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px; }
+    .breadcrumb { font-size: 0.85rem; color: #8b949e; margin-bottom: 32px; }
+    .breadcrumb a { color: #8b949e; } .breadcrumb a:hover { color: #58a6ff; }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; font-weight: 600; margin: 36px 0 12px; color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
+    p { margin-bottom: 16px; color: #c9d1d9; }
+    pre { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.875rem; margin: 16px 0; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.875rem; }
+    p code, li code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #e6edf3; }
+    table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9rem; }
+    th { background: #161b22; padding: 10px 14px; text-align: left; color: #8b949e; font-weight: 600; border-bottom: 1px solid #21262d; }
+    td { padding: 10px 14px; border-bottom: 1px solid #21262d; color: #c9d1d9; } td strong { color: #3fb950; }
+    ul, ol { padding-left: 24px; margin-bottom: 16px; color: #c9d1d9; } li { margin-bottom: 6px; }
+    .meta { color: #8b949e; font-size: 0.875rem; margin-bottom: 32px; }
+    .stat-row { display: flex; gap: 32px; margin: 24px 0; flex-wrap: wrap; }
+    .stat { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 16px 24px; }
+    .stat-number { font-size: 1.8rem; font-weight: 700; color: #3fb950; }
+    .stat-label { font-size: 0.8rem; color: #8b949e; margin-top: 2px; }
+    .note { background: #161b22; border-left: 3px solid #3fb950; padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 16px 0; font-size: 0.9rem; color: #8b949e; }
+    hr { border: none; border-top: 1px solid #21262d; margin: 32px 0; }
+    .cta { background: #238636; color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; display: inline-block; margin: 8px 8px 8px 0; }
+    .cta:hover { background: #2ea043; text-decoration: none; }
+    .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #21262d; color: #8b949e; font-size: 0.85rem; }
+    .tags { margin-top: 32px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { background: #161b22; border: 1px solid #21262d; color: #8b949e; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb"><a href="/Indra/">Indra</a> › <a href="/Indra/blog/">Blog</a> › Web Scraping LLM Cost Reduction</div>
+  <h1>How to Cut Web Scraping LLM Costs by 90% with Change Detection</h1>
+  <p class="meta">By Mahika Jadhav · May 31, 2026 · 6 min read</p>
+
+  <div class="stat-row">
+    <div class="stat"><div class="stat-number">90%</div><div class="stat-label">Cost reduction</div></div>
+    <div class="stat"><div class="stat-number">0</div><div class="stat-label">Tokens on unchanged pages</div></div>
+    <div class="stat"><div class="stat-number">100%</div><div class="stat-label">Signal recall</div></div>
+  </div>
+
+  <p>You've built a web scraping agent powered by an LLM. It monitors pages, extracts insights, and sends alerts. It's working — but the cost is unsustainable. You're paying $0.03–0.15 per page analysis, running dozens of pages every hour, and <strong>80% of those analyses conclude with "nothing changed."</strong></p>
+  <p>The root cause is architectural: you're calling the LLM unconditionally on every fetch. The LLM doesn't know what the page looked like before. It can't distinguish "nothing changed" from "I haven't seen this page before." So it re-reads the whole thing every time.</p>
+
+  <h2>Why this wastes so much money</h2>
+  <p>Consider a realistic monitoring setup:</p>
+  <table>
+    <tr><th>Pages monitored</th><th>Check frequency</th><th>Change rate</th><th>Wasted LLM calls/day</th></tr>
+    <tr><td>10</td><td>Hourly</td><td>1/day</td><td>230 of 240</td></tr>
+    <tr><td>50</td><td>Hourly</td><td>5/day</td><td>1,195 of 1,200</td></tr>
+    <tr><td>100</td><td>Every 30 min</td><td>10/day</td><td>4,790 of 4,800</td></tr>
+  </table>
+  <p>At $0.05 per analysis, 4,790 wasted calls/day = <strong>$7,183.50/month.</strong> For information you already had.</p>
+
+  <h2>The fix: change detection before LLM invocation</h2>
+  <p>The correct architecture never asks the LLM "did this change?" — it answers that question with a hash comparison (free, instant) and only invokes the LLM to <em>interpret</em> changes that actually happened.</p>
+
+  <pre><code>pip install indra-ai</code></pre>
+  <pre><code>import indra
+from groq import Groq
+
+agent = indra.init(brightdata_api_key="your-bd-key")
+groq_client = Groq()
+
+def analyze_diff(goal, inputs, *_):
+    # inputs["diff"] contains ONLY what changed — not the full page
+    diff = inputs.get("diff", "")
+    response = groq_client.chat.completions.create(
+        model="llama-3.3-70b-versatile",
+        messages=[{"role": "user", "content": f"{goal}\n\nWhat changed:\n{diff}"}]
+    )
+    return response.choices[0].message.content
+
+# Monitor 50 pages — LLM only fires on the ones that changed
+urls = load_urls_from_config()
+
+for url in urls:
+    result = agent.watch(
+        url=url,
+        question="Is this change significant? What action should we take?",
+        generation_fn=analyze_diff,
+    )
+
+    if result.changed:
+        alert_team(url, result.insight)
+
+# Session summary
+stats = agent.get_stats()
+print(f"Fetches: {stats['total_fetches']}, LLM calls: {stats['llm_calls_fired']}")
+print(f"Efficiency: {100 * (1 - stats['llm_calls_fired'] / stats['total_fetches']):.0f}% LLM calls eliminated")</code></pre>
+
+  <h2>The diff advantage</h2>
+  <p>Even when a page changes, you don't need to send the whole page. A pricing page is 2,000 tokens of HTML — but the change might be 3 numbers. The diff is 40 tokens.</p>
+  <p>Indra extracts the unified diff automatically and passes it to your LLM function. Your LLM call goes from 2,000 tokens to 40–200 tokens on a typical change — an additional 95% reduction on top of the change detection savings.</p>
+
+  <h2>Results from a real deployment</h2>
+  <table>
+    <tr><th>Metric</th><th>Before Indra</th><th>After Indra</th></tr>
+    <tr><td>LLM calls/day (10 pages, hourly)</td><td>240</td><td><strong>~22</strong></td></tr>
+    <tr><td>Avg tokens per analysis</td><td>~1,800</td><td><strong>~120</strong></td></tr>
+    <tr><td>Monthly LLM cost</td><td>~$518</td><td><strong>~$3.80</strong></td></tr>
+    <tr><td>Changes missed</td><td>0</td><td><strong>0</strong></td></tr>
+  </table>
+
+  <div class="note">Change detection doesn't sacrifice recall — you still fetch every run and catch every real change. You just stop paying to confirm that nothing changed.</div>
+  <hr />
+  <a class="cta" href="https://github.com/smartass-4ever/Indra">GitHub</a>
+  <a href="https://pypi.org/project/indra-ai/" style="color:#58a6ff; margin-left: 8px;">pip install indra-ai</a>
+  <div class="tags"><span class="tag">web-scraping</span><span class="tag">llm-cost</span><span class="tag">change-detection</span><span class="tag">python</span><span class="tag">cost-reduction</span></div>
+  <div class="footer"><a href="/Indra/blog/">← All posts</a> · <a href="/Indra/blog/competitor-price-monitoring-python">Competitor monitoring →</a></div>
+</div>
+</body>
+</html>

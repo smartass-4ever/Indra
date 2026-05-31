@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Supply Chain Monitoring with Python and AI — Indra</title>
+  <meta name="description" content="Monitor supplier pages, lead times, and stock availability with an AI agent that only fires when something actually changes — giving you early warning before disruptions hit." />
+  <meta name="keywords" content="supply chain monitoring python, supplier monitoring python, stock availability monitoring, lead time monitoring python, supply chain ai agent, monitor supplier website python, inventory monitoring python, supply chain alert python, supplier change detection, supply chain intelligence python, procurement monitoring python" />
+  <meta property="og:title" content="Supply Chain Monitoring with Python and AI — Indra" />
+  <meta property="og:description" content="Monitor supplier pages and stock availability — AI alerts only when something actually changes." />
+  <meta property="og:type" content="article" />
+  <meta property="og:url" content="https://smartass-4ever.github.io/Indra/blog/supply-chain-monitoring-python" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="canonical" href="https://smartass-4ever.github.io/Indra/blog/supply-chain-monitoring-python" />
+  <link rel="sitemap" type="application/xml" href="/Indra/sitemap.xml" />
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"TechArticle","headline":"Supply Chain Monitoring with Python and AI","author":{"@type":"Person","name":"Mahika Jadhav"},"datePublished":"2026-05-31","publisher":{"@type":"Organization","name":"Indra"},"url":"https://smartass-4ever.github.io/Indra/blog/supply-chain-monitoring-python"}</script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace; background: #0d1117; color: #e6edf3; line-height: 1.7; }
+    a { color: #58a6ff; text-decoration: none; } a:hover { text-decoration: underline; }
+    .container { max-width: 760px; margin: 0 auto; padding: 48px 24px; }
+    .breadcrumb { font-size: 0.85rem; color: #8b949e; margin-bottom: 32px; }
+    .breadcrumb a { color: #8b949e; } .breadcrumb a:hover { color: #58a6ff; }
+    h1 { font-size: 2rem; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+    h2 { font-size: 1.2rem; font-weight: 600; margin: 36px 0 12px; color: #f0f6fc; border-bottom: 1px solid #21262d; padding-bottom: 6px; }
+    p { margin-bottom: 16px; color: #c9d1d9; }
+    pre { background: #161b22; border: 1px solid #21262d; border-radius: 8px; padding: 20px; overflow-x: auto; font-size: 0.875rem; margin: 16px 0; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.875rem; }
+    p code, li code { background: #161b22; padding: 2px 6px; border-radius: 4px; font-size: 0.85rem; color: #e6edf3; }
+    ul, ol { padding-left: 24px; margin-bottom: 16px; color: #c9d1d9; } li { margin-bottom: 6px; }
+    .meta { color: #8b949e; font-size: 0.875rem; margin-bottom: 32px; }
+    .note { background: #161b22; border-left: 3px solid #3fb950; padding: 12px 16px; border-radius: 0 6px 6px 0; margin: 16px 0; font-size: 0.9rem; color: #8b949e; }
+    hr { border: none; border-top: 1px solid #21262d; margin: 32px 0; }
+    .cta { background: #238636; color: #fff; padding: 10px 24px; border-radius: 8px; font-weight: 600; display: inline-block; margin: 8px 8px 8px 0; }
+    .cta:hover { background: #2ea043; text-decoration: none; }
+    .footer { margin-top: 64px; padding-top: 24px; border-top: 1px solid #21262d; color: #8b949e; font-size: 0.85rem; }
+    .tags { margin-top: 32px; display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag { background: #161b22; border: 1px solid #21262d; color: #8b949e; padding: 3px 10px; border-radius: 20px; font-size: 0.78rem; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="breadcrumb"><a href="/Indra/">Indra</a> › <a href="/Indra/blog/">Blog</a> › Supply Chain Monitoring Python</div>
+  <h1>Supply Chain Monitoring with Python and AI — Detect Changes Before They Hit You</h1>
+  <p class="meta">By Mahika Jadhav · May 31, 2026 · 5 min read</p>
+
+  <p>Supply chain disruptions don't announce themselves. Lead times quietly extend. Stock availability drops. Supplier notices appear on obscure portal pages. By the time you find out through normal channels, you're already behind.</p>
+  <p>An AI monitoring agent watching your suppliers' websites can surface these signals early — but only if it's built to distinguish real changes from noise, and only fire alerts when something actually shifts.</p>
+
+  <h2>What to monitor</h2>
+  <ul>
+    <li>Supplier product pages (availability, lead times, minimum order quantities)</li>
+    <li>Shipping and logistics provider service notices</li>
+    <li>Component manufacturer announcements (EOL notices, allocation alerts)</li>
+    <li>Port and logistics status pages</li>
+    <li>Government trade and tariff pages for relevant commodities</li>
+  </ul>
+
+  <h2>Building the monitor</h2>
+  <pre><code>pip install indra-ai</code></pre>
+  <pre><code>import indra
+from anthropic import Anthropic
+
+agent = indra.init(brightdata_api_key="your-bd-key")
+client = Anthropic()
+
+def analyze_supply(goal, inputs, *_):
+    content = inputs.get("diff") or inputs.get("content", "")
+    return client.messages.create(
+        model="claude-haiku-4-5", max_tokens=512,
+        messages=[{"role": "user", "content": f"{goal}\n\n{content}"}]
+    ).content[0].text
+
+SUPPLIERS = [
+    {
+        "name": "Main Component Supplier",
+        "url": "https://supplier-a.com/components/widget-a",
+        "question": "Did stock availability, lead time, or pricing change? What's the current status?"
+    },
+    {
+        "name": "Backup Supplier",
+        "url": "https://supplier-b.com/availability",
+        "question": "Any changes to availability or lead times for electronic components?"
+    },
+    {
+        "name": "Logistics Provider",
+        "url": "https://logistics-co.com/service-alerts",
+        "question": "Are there any new service disruptions, delays, or surcharges?"
+    },
+]
+
+for supplier in SUPPLIERS:
+    result = agent.watch(
+        url=supplier["url"],
+        question=supplier["question"],
+        generation_fn=analyze_supply,
+    )
+
+    if result.changed:
+        print(f"⚠️  SUPPLY CHANGE: {supplier['name']}")
+        print(result.insight)
+        alert_procurement_team(supplier["name"], result.insight)</code></pre>
+
+  <h2>Monitoring commodity and tariff pages</h2>
+  <pre><code># Track regulatory changes that affect sourcing
+result = agent.watch(
+    url="https://hts.usitc.gov/",  # US tariff schedule
+    question="Did tariff rates change for semiconductor components (chapters 85-86)?",
+    generation_fn=analyze_supply,
+)
+
+if result.changed:
+    alert_finance_team("Tariff change detected", result.insight)</code></pre>
+
+  <h2>Early warning system</h2>
+  <pre><code>import datetime
+
+# Run every 4 hours via cron: 0 */4 * * *
+results = []
+
+for supplier in SUPPLIERS:
+    result = agent.watch(url=supplier["url"], question=supplier["question"], generation_fn=analyze_supply)
+    results.append({"supplier": supplier["name"], "changed": result.changed, "insight": result.insight})
+
+changes = [r for r in results if r["changed"]]
+
+if changes:
+    urgency = "HIGH" if any("out of stock" in r["insight"].lower() or "lead time" in r["insight"].lower() for r in changes) else "MEDIUM"
+    send_supply_alert(urgency, changes)</code></pre>
+
+  <div class="note">Most supplier portals are behind logins or behind bot protection. Bright Data's Web Unlocker handles the latter. For authenticated portals, you'll need session cookies — contact us for guidance on session-based monitoring.</div>
+  <hr />
+  <a class="cta" href="https://github.com/smartass-4ever/Indra">GitHub</a>
+  <a href="https://pypi.org/project/indra-ai/" style="color:#58a6ff; margin-left: 8px;">pip install indra-ai</a>
+  <div class="tags"><span class="tag">supply-chain</span><span class="tag">monitoring</span><span class="tag">python</span><span class="tag">ai-agent</span><span class="tag">web-scraping</span></div>
+  <div class="footer"><a href="/Indra/blog/">← All posts</a> · <a href="/Indra/blog/competitor-monitoring-automation-python">Competitor automation →</a></div>
+</div>
+</body>
+</html>
